@@ -17,8 +17,7 @@ try {
                           
         })
         
-
-         //after transporter we send the mail 
+        //after transporter we send the mail 
         let info = await transporter.sendMail({
             from:`Room On Rent <${process.env.MAIL_USER}>`,
             to:`${email},`,

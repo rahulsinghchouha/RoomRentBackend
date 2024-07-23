@@ -16,7 +16,7 @@ const OTP = new mongoose.Schema({
         default:Date.now(),
         expires: 60*5,
     }
-})
+},{ timestamps: true }) ; // This will add createdAt and updatedAt fields
 //defien a function to send email
 async function sendVerificationEmail(email,otp)
 {

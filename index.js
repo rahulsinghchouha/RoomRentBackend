@@ -1,15 +1,17 @@
 const express = require("express");
 const databaseConnect = require("./config/database");
-const router = express.Router();
-const sendOTP = require("./controllers/userProfile");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
+
+
 const app = express();
+
+
 
 //setup-port
 require("dotenv").config();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT,()=>{
     console.log("I am listening on PORT =",PORT);
 })
@@ -21,7 +23,20 @@ app.get('/',(req,res)=>{
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+//user Routers
+const userRoutes = require("./routers/auth");
+
+//cors for add the path
+app.use(
+    cors({
+        origin:"http://localhost:3000", //for only localhost 3000
+        credentials:true,
+        maxAge: 14400,
+    })
+)
+
 //database connection
 //user signup
-app.post("/signup",sendOTP);
+app.use("/api/v1/auth",userRoutes);
+
 databaseConnect();
