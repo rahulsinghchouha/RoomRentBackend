@@ -4,16 +4,15 @@ const userProfile = mongoose.Schema({
        name:{
         type:String,
         required:true,
+        default: 'default@example.com',
         trim:true
        },
        email:{
-        type:String,
-        required:true,
+        type:String,        
         trim:true
        },
        phone:{
-        type:Number,
-        required:true,
+        type:Number,        
         trim:true,
        },
        password:{
@@ -27,8 +26,7 @@ const userProfile = mongoose.Schema({
         required:true
        },
        image:{
-        type:String,
-        required:true
+        type:String
        },
        
 })

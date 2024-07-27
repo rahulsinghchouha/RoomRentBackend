@@ -25,6 +25,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 //user Routers
 const userRoutes = require("./routers/auth");
+const productsRouter = require("./routers/products");
 
 //cors for add the path
 app.use(
@@ -38,5 +39,6 @@ app.use(
 //database connection
 //user signup
 app.use("/api/v1/auth",userRoutes);
+app.use("/api/v1/productfunction",productsRouter);
 
 databaseConnect();
