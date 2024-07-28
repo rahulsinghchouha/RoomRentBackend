@@ -26,8 +26,7 @@ const addProduct = new mongoose.Schema({
     },
     images:[
         {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Image",
+           type:String
     }
 ]
 

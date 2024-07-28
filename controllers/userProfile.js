@@ -148,7 +148,7 @@ exports.signUp = async (req, res) => {
    //     console.log("+>",name, email, password, confirmPassword, phone );
     // Hash the password
 		const hashedPassword = await bcrypt.hash(password, 10);
-        console.log("++>",name, email, password, confirmPassword, phone,hashedPassword );
+      //  console.log("++>",name, email, password, confirmPassword, phone,hashedPassword );
         const user = await userProfile.create({
             name:name,
             email:email,
@@ -160,6 +160,7 @@ exports.signUp = async (req, res) => {
    //     console.log("+++++>",name, email, password, confirmPassword, phone,"user->",user );
         if(user)
         {
+         
             return res.status(200).json({
                 success:true,
                 message:"Account created Succesfully",
