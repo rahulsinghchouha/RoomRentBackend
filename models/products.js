@@ -24,11 +24,13 @@ const addProduct = new mongoose.Schema({
         required:true,
         
     },
-    images:[
-        {
-           type:String
-    }
-]
+    images:
+        [
+            {
+            type:String,
+            }
+        ]
+
 
 })
 

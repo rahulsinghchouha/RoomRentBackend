@@ -2,6 +2,8 @@ const Product = require("../models/products");
 const userProfile = require("../models/userProfile");
 const formidable = require('formidable');
 const uploadImageToCloudinary = require("../utils/imageUploader");
+
+
 require("dotenv").config();
 
 //convert formdata
@@ -27,26 +29,11 @@ function isFileTypeSupported(type, supportedTypes) {
 exports.addProducts = async (req, res) => {
 
     try {
-        const { fields, files, err } = await parseForm(req);
+        const { fields, files, err } = await parseForm(req); //form se files and fields ko alag alag krke de dega v err hoga to vo bhi de dega
 
         // Destructure form fields
         if (fields && files) {
             const { name, category, price, address, details, email } = fields;
-
-            // Log fields and files
-            // console.log('Name:', name);
-            // console.log('Category:', category);
-            // console.log('Price:', price);
-            // console.log('Address:', address);
-            // console.log('Details:', details);
-            // console.log('Email:', email);
-            // console.log('Files:', files);
-            // console.log("img1", files?.img1 && files?.img1[0]);
-            // console.log("img2", files?.img2 && files?.img2[0]);
-            // console.log("img3", files?.img3 && files?.img3[0]);
-            // console.log("img4", files?.img4 && files?.img4[0]);
-            // console.log("img5", files?.img5 && files?.img5[0]);
-
 
             //step -1 validation
 
@@ -205,17 +192,56 @@ exports.addProducts = async (req, res) => {
                 }
 
             }
-            //after this image we will 
+            const imageUrls = [imageUrl1, imageUrl2, imageUrl3, imageUrl4, imageUrl5];
 
+            // Filter out undefined and empty strings
+            const images = imageUrls.filter(url => url !== undefined && url !== '');
 
-            console.log("Image 1 url",imageUrl1);
-            console.log("Image 2 url",imageUrl2);
-            console.log("Image 3 url",imageUrl3);
-            console.log("Image 4 url",imageUrl4);
-            console.log("Image 5 url",imageUrl5);
+            //console.log("=====>",name[0], category[0], price[0], address[0], details[0], email[0])
 
-            res.send('Form data received');
+            //create object of product
+
+            const product = new Product({
+                name: name[0],
+                category: category[0],
+                price: price[0],
+                address: address[0],
+                details: details[0],
+                images: [...images]
+            })
+            //now we save this object 
+            try {
+                const newProduct = await product.save();
+
+                //now we save this product into user schema
+
+                const productUser = await userProfile.findByIdAndUpdate(
+                    { _id: user._id },
+                    {
+                        $push: {
+                            products: newProduct._id,
+                        }
+                    },
+                    { new: true },
+                )
+                console.log("Product userr==>", productUser);
+            }
+            catch (error) {
+                console.log("Product save error", error)
+                res.status(400).json({
+                    success: false,
+                    message: "Product was not saved",
+                });
+            }
+
+            // Return the new course and a success message
+            res.status(200).json({
+                success: true,
+                message: "Product Saved Successfully",
+            });
+
         }
+
         else {
             return res.status(404).json({
                 message: "files and fiels not found",
@@ -235,6 +261,33 @@ exports.addProducts = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
 
+    //fetch data from Products model return products
+
+    try {
+        const products = await Product.find();
+        if (products) {
+            return res.status(200).json({
+                success: true,
+                message: "Prducts get succesfully",
+                products: products
+            })
+        }
+        else {
+            return res.status(400).json({
+                success: false,
+                message: "Produc not get"
+            })
+        }
+    }
+    catch (error) {
+        //console.log("error");
+        return res.status(404).json({
+            success: false,
+            message: "Produc not fetched"
+        })
+    }
+
+
 
 }
 exports.deleteProduct = async (req, res) => {
@@ -244,6 +297,10 @@ exports.deleteProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
 
+
+}
+
+exports.getProductsById = async (req, res) => {
 
 }
 

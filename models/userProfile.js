@@ -5,7 +5,6 @@ const userProfile = mongoose.Schema({
        name:{
         type:String,
         required:true,
-        default: 'default@example.com',
         trim:true
        },
        email:{

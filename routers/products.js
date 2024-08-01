@@ -9,6 +9,7 @@ const upload = multer({ storage: storage });
 const {addProducts,getProducts,deleteProduct,updateProduct} = require("../controllers/products");
 
 router.post("/addproduct",addProducts);
+router.get("/getproducts",getProducts);
 
 
 module.exports=router;

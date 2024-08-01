@@ -2,120 +2,49 @@ const cloudinary = require("cloudinary").v2;
 const fs = require('fs');
 const path = require('path');
 
-const uploadImageToCloudinary = async (file,folder,height,width) =>
-{
-    // console.log("file,",file);
-    // console.log(",folder,",folder);
-    // console.log("height,",height);
-    // console.log("width",width);
-   // const options = {folder}
-   try{
-           const filePath = path.resolve(file.filepath);
+const uploadImageToCloudinary = async (file, folder, height, width) => {
+  try {
+    //check file path
+    const filePath = path.resolve(file.filepath);
 
-   
-            await fs.access(filePath, fs.constants.R_OK, (err) => {
-             if (err) {
-               console.error(`File not accessible: ${filePath}`);
-               reject(new Error(`File not accessible: ${filePath}`));
-               return;
-             } })
+    //check file access
+    fs.access(filePath, fs.constants.R_OK, (err) => {
+      if (err) {
+        console.error(`File not accessible: ${filePath}`);
+        return;
+      }})
+    //for options
+    const options = {
+      resource_type: 'image',
+      folder: folder,
+      transformation: [{ width: width, height: height, crop: 'fill' }]
+    };
+    let retry = 2;
 
-           
-             cloudinary.uploader.upload(
-                  filePath,
-                       {
-                         resource_type: "image",
-                         folder:folder,
-                       },
-                       {
-                        retries: 2, // Number of retry attempts
-                        factor: 2, // Exponential factor
-                        minTimeout: 1000, // Minimum timeout between retries
-                        onRetry: (err, attempt) => {
-                          console.log(`Retry attempt ${attempt} failed: ${err.message}`);
-                        },
-                      },
-                    
-                  );
-                  console.log('Upload successful:', result);
-                  return result.secure_url;
+    //then upload code on cloudinary
+    for (let attempt = 1; attempt <= retry; attempt++) {
+      try {
+        const result = await cloudinary.uploader.upload(filePath, options);
+        return result.secure_url
+      }
+      catch (error) {
+        if (attempt === retry) {
+          console.log("Error cant upload try again", error);
+          return;
+          }
+        
+        console.log(`Retry attempt ${attempt} failed: ${error.message}`);
+        // Delay before retrying (exponential backoff) itni der wait ke baad agian start
+        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
+        }
+      }
+    }
 
-
-                  // const result = await retry(
-                  //   async () => {
-                  //     return await cloudinary.uploader.upload(filePath, {
-                  //       resource_type: 'image',
-                  //       folder: folder,
-                  //     });
-                  //   },
-                  //   {
-                  //     retries: 5, // Number of retry attempts
-                  //     factor: 2, // Exponential factor
-                  //     minTimeout: 1000, // Minimum timeout between retries
-                  //     onRetry: (err, attempt) => {
-                  //       console.log(`Retry attempt ${attempt} failed: ${err.message}`);
-                  //     },
-                  //   }
-                  // );
-              
-                  // console.log('Upload successful:', result);
-                  // return result.secure_url;
-              
-                
-   }
   
-
-
-  catch(err)
-  {
-    return res.status(404).json({
-      message:"image not uploaded",
-      error:err
-    })
+  catch (err) {
+    console.error('Unexpected error:', err);
+    return;
+  
   }
-
-
 }
- module.exports = uploadImageToCloudinary;
-
-
-
-// const fs = require('fs');
-// const path = require('path');
-
-// cloudinary.config({
-//   cloud_name: 'your_cloud_name',
-//   api_key: 'your_api_key',
-//   api_secret: 'your_api_secret'
-// });
-
-// const uploadImageToCloudinary = (file, options) => {
-//   return new Promise((resolve, reject) => {
-//     const filePath = path.resolve(file.filepath);
-    
-//     fs.access(filePath, fs.constants.R_OK, (err) => {
-//       if (err) {
-//         reject(new Error(`File not accessible: ${filePath}`));
-//         return;
-//       }
-
-//       cloudinary.uploader.upload(
-//         filePath,
-//         {
-//           resource_type: "image",
-//           folder: options.folder,
-//           width: options.width,
-//           height: options.height,
-//           quality: options.quality
-//         },
-//         (error, result) => {
-//           if (error) {
-//             reject(error);
-//           } else {
-//             resolve(result);
-//           }
-//         }
-//       );
-//     });
-//   });
-// }
+module.exports = uploadImageToCloudinary;

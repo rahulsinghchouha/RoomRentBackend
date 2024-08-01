@@ -2,6 +2,7 @@ const userProfile = require("../models/userProfile");
 const otpGenerator = require("otp-generator");
 const OTP = require("../models/OTP");
 const bcrypt = require("bcrypt");
+const { castObject } = require("../models/products");
 
 exports.sendOTP = async (req, res, next) => {
     try {
@@ -13,7 +14,7 @@ exports.sendOTP = async (req, res, next) => {
 
         //if user already present
         if (checkUserPresent) {
-            return res.status(200).json({
+            return res.status(404).json({
 				success: false,
 				message: `User is Already Registered`,
 			});
@@ -36,7 +37,7 @@ exports.sendOTP = async (req, res, next) => {
             otp
         }
         //we store otp in user schema
-
+        try{
         const otpBody = await OTP.create(otpPayload); //from there our otp will share to the user
 
         if (otpBody) {
@@ -46,8 +47,10 @@ exports.sendOTP = async (req, res, next) => {
                 otp,
             })
         }
-        else {
-            return res.status(200).json({
+    }
+        catch(error){
+            console.log("OTP Sent error",err);
+            return res.status(404).json({
                 success: false,
                 message: `OTP not Send Please try again`
             })
@@ -55,7 +58,7 @@ exports.sendOTP = async (req, res, next) => {
     }
     catch (error) {
         console.log(error.message);
-        return res.status(200).json({ success: false,
+        return res.status(404).json({ success: false,
              message: "OTP not Send Enter a valid email and  please try again" });
     }
 }
@@ -77,7 +80,22 @@ exports.otpVerification = async (req, res, next) => {
                 message: "Enter OTP",
             })
         }
+
+       //check if email is already present
+       const checkUserPresent = await userProfile.findOne({email});
+       //await userProfile.findOne({email});
+
+       //if user already present
+       if (checkUserPresent) {
+           return res.status(404).json({
+               success: false,
+               message: "User is Already Registered",
+           });
+
+       }
+
         //if email find so find otp in user otp
+
         const dbOTP = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1); //limit 1 for only 1 data sort for latest data
 
         if (!dbOTP) {
@@ -95,16 +113,16 @@ exports.otpVerification = async (req, res, next) => {
             })
         }
         else {
-            return res.status(200).json({
+            return res.status(404).json({
                 success: false,
                 message: "Invalid OTP"
             })
         }
     }
     catch (error) {
-        return res.status(401).json({
+        return res.status(404).json({
             success: false,
-            message: "OTP is not verifying",
+            message: "OTP is not verifying please try again",
         })
 
     }
@@ -114,12 +132,20 @@ exports.otpVerification = async (req, res, next) => {
 exports.signUp = async (req, res) => {
 
   try{
-    const { name, email, password, confirmPassword, phone } = req.body;
+    const { name, email, password, confirmPassword, phone,otp } = req.body;
     //validation
+
+    if((!email) || (!otp))
+    {
+        return res.status(404).json({
+            success:false,
+            message:"please Enter Email and verify "
+        })
+    }
 
     if((!name) || (!password) || (!confirmPassword)  || (! (email || phone)) )
     {
-        return res.status(200).json({
+        return res.status(404).json({
             success:false,
             message:"All the fields are required"
         })
@@ -128,7 +154,7 @@ exports.signUp = async (req, res) => {
     const checkUserPresent = await userProfile.findOne({email});
     if (checkUserPresent) {
         console.log("user present")
-        return res.status(200).json({
+        return res.status(404).json({
             success: false,
             message: `User is Already Registered`,
         });
@@ -140,7 +166,7 @@ exports.signUp = async (req, res) => {
     //password match
     if( password !== confirmPassword  )
         {
-            return res.status(200).json({
+            return res.status(404).json({
                 success:false,
                 message:"Password is incorrect"
             })
@@ -165,11 +191,10 @@ exports.signUp = async (req, res) => {
                 success:true,
                 message:"Account created Succesfully",
             })
-        }
-        
+        }        
         else {
            
-            return res.status(200).json({
+            return res.status(404).json({
                 success:false,
                 message:"Account not created Please try again",
             })
@@ -179,7 +204,7 @@ exports.signUp = async (req, res) => {
   catch(error)
   {
    
-    return res.status(200).json({
+    return res.status(404).json({
         success:false,
         message:"Account not created Please try again",
     })
