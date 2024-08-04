@@ -224,10 +224,10 @@ exports.addProducts = async (req, res) => {
                     },
                     { new: true },
                 )
-                console.log("Product userr==>", productUser);
+              //  console.log("Product userr==>", productUser);
             }
             catch (error) {
-                console.log("Product save error", error)
+               // console.log("Product save error", error)
                 res.status(400).json({
                     success: false,
                     message: "Product was not saved",

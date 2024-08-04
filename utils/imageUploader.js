@@ -29,11 +29,11 @@ const uploadImageToCloudinary = async (file, folder, height, width) => {
       }
       catch (error) {
         if (attempt === retry) {
-          console.log("Error cant upload try again", error);
+       //   console.log("Error cant upload try again", error);
           return;
           }
         
-        console.log(`Retry attempt ${attempt} failed: ${error.message}`);
+      //  console.log(`Retry attempt ${attempt} failed: ${error.message}`);
         // Delay before retrying (exponential backoff) itni der wait ke baad agian start
         await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
         }

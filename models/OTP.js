@@ -14,7 +14,7 @@ const OTP = new mongoose.Schema({
     createdAt:{
         type:Date,
         default:Date.now(),
-        expires: 10*60*1000,
+        expires:600,
     }
 },{ timestamps: true }) ; // This will add createdAt and updatedAt fields
 //defien a function to send email

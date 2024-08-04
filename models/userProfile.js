@@ -28,6 +28,9 @@ const userProfile = mongoose.Schema({
        image:{
         type:String
        },
+       token: {
+              type: String,
+       },
        products:[{
               type:mongoose.Schema.Types.ObjectId,
               ref:"Products",
