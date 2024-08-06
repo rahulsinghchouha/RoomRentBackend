@@ -9,7 +9,8 @@ const userProfile = mongoose.Schema({
        },
        email:{
         type:String,        
-        trim:true
+        trim:true,
+        
        },
        phone:{
         type:Number,        

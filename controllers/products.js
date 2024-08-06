@@ -33,12 +33,12 @@ exports.addProducts = async (req, res) => {
 
         // Destructure form fields
         if (fields && files) {
-            const { name, category, price, address, details, email } = fields;
+            const { name, category, price, address, details } = fields;
 
             //step -1 validation
 
 
-            if ((!name) || (!category) || (!price) || (!address) || (!details) || (!email)) {
+            if ((!name) || (!category) || (!price) || (!address) || (!details) ) {
                 return res.status(404).json({
                     message: "insert all the data"
                 })
@@ -50,6 +50,17 @@ exports.addProducts = async (req, res) => {
                 })
             }
             // find User 
+            console.log(req.user);
+            const {email} = req.user;
+            // console.log("email",email);
+            if(!email)
+            {
+                return res.status(404).json({
+                    success:false,
+                    message: "user not found please login"
+                })
+
+            }
 
             const user = await userProfile.findOne({ email });
             if (!user) {
@@ -224,10 +235,10 @@ exports.addProducts = async (req, res) => {
                     },
                     { new: true },
                 )
-              //  console.log("Product userr==>", productUser);
+                //  console.log("Product userr==>", productUser);
             }
             catch (error) {
-               // console.log("Product save error", error)
+                // console.log("Product save error", error)
                 res.status(400).json({
                     success: false,
                     message: "Product was not saved",
@@ -301,6 +312,42 @@ exports.updateProduct = async (req, res) => {
 }
 
 exports.getProductsById = async (req, res) => {
+
+    try {
+        // const { id } = req.body;
+        const { productId } = req.params;
+        //validate id
+        if (!productId) {
+            return res.status(404).json({
+                success: false,
+                message: "Details not found please try again"
+            })
+        }
+        //find id from db
+
+        const productDetails = await Product.findById(productId);
+        if (productDetails) {
+            return res.status(200).json({
+                success:true,
+                message:"product details get succesfully",
+                productDetails
+            })
+        }
+        else{
+            return res.status(404).json({
+                success: false,
+                message: "Details not found please try again"
+            })
+        }
+
+    }
+    catch (error) {
+        return res.status(404).json({
+            success: false,
+            message: "id not found please try again"
+        })
+    }
+
 
 }
 

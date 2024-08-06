@@ -6,12 +6,11 @@ const multer = require('multer');
 const storage = multer.memoryStorage(); // You can configure storage as needed
 const upload = multer({ storage: storage });
 
-const {addProducts,getProducts,deleteProduct,updateProduct} = require("../controllers/products");
-const {checkUserPresent,isUser,isAdmin} = require("../middleware/userauth");
+const {addProducts,getProducts,deleteProduct,updateProduct, getProductsById} = require("../controllers/products");
+const {checkUserPresent,isUser,isAdmin,auth} = require("../middleware/userauth");
 
-router.post("/addproduct",addProducts);
+router.post("/addproduct",auth,addProducts);
 router.get("/getproducts",getProducts);
-
-
+router.get("/getproductdetails/:productId",getProductsById);
 
 module.exports=router;
